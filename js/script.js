@@ -11,21 +11,44 @@ const status = document.querySelector("#status");
 let seconds = 10;
 let timeoutId = null;
 let intervalId = null;
-
-// TODO 1. После нажатия запланируйте сообщение через 2000 мс.
-// Сохраните идентификатор setTimeout в timeoutId.
 delayButton.addEventListener("click", () => {
+  clearTimeout(timeoutId);
   delayedText.textContent = "Ожидаем сообщение...";
+
+  timeoutId = setTimeout(() => {
+    delayedText.textContent = "Сообщение доставлено!";
+    timeoutId = null;
+  }, 2000);
 });
-
-// TODO 2. Запустите setInterval с интервалом 1000 мс.
-// Каждую секунду уменьшайте seconds на 1 и обновляйте secondsText.
-// При достижении 0 остановите интервал через clearInterval().
-// Не допускайте запуска второго интервала, пока работает первый.
-startButton.addEventListener("click", () => {});
-
-// TODO 3. Остановите текущий интервал, но сохраните число секунд.
-pauseButton.addEventListener("click", () => {});
-
-// TODO 4. Отмените оба таймера и восстановите исходное состояние.
-resetButton.addEventListener("click", () => {});
+startButton.addEventListener("click", () => {
+  if (intervalId !== null || seconds <= 0) {
+    return;
+  }
+  status.textContent = "Идет отсчет...";
+  intervalId = setInterval(() => {
+    seconds -= 1;
+    secondsText.textContent = seconds;
+    if (seconds <= 0) {
+      clearInterval(intervalId);
+      intervalId = null;
+      status.textContent = "Время вышло!";
+    }
+  }, 1000);
+});
+pauseButton.addEventListener("click", () => {
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+    intervalId = null;
+    status.textContent = "Пауза";
+  }
+});
+resetButton.addEventListener("click", () => {
+  clearTimeout(timeoutId);
+  clearInterval(intervalId);
+  timeoutId = null;
+  intervalId = null;
+  seconds = 10;
+  secondsText.textContent = seconds;
+  delayedText.textContent = "";
+  status.textContent = "Готов к работе";
+});
