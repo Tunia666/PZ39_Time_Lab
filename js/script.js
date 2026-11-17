@@ -1,6 +1,7 @@
 "use strict";
 
 const delayButton = document.querySelector("#delay-button");
+const repeatButton = document.querySelector("#repeat-button");
 const delayedText = document.querySelector("#delayed-text");
 const startButton = document.querySelector("#start-button");
 const pauseButton = document.querySelector("#pause-button");
@@ -12,20 +13,75 @@ let seconds = 10;
 let timeoutId = null;
 let intervalId = null;
 
-// TODO 1. После нажатия запланируйте сообщение через 2000 мс.
-// Сохраните идентификатор setTimeout в timeoutId.
-delayButton.addEventListener("click", () => {
+function scheduleDelayedMessage() {
+  if (timeoutId !== null) {
+    clearTimeout(timeoutId);
+  }
+
   delayedText.textContent = "Ожидаем сообщение...";
+
+  timeoutId = setTimeout(() => {
+    delayedText.textContent = "Время вышло! Отложенное сообщение появилось.";
+    timeoutId = null;
+  }, 2000);
+}
+
+delayButton.addEventListener("click", () => {
+  scheduleDelayedMessage();
 });
 
-// TODO 2. Запустите setInterval с интервалом 1000 мс.
-// Каждую секунду уменьшайте seconds на 1 и обновляйте secondsText.
-// При достижении 0 остановите интервал через clearInterval().
-// Не допускайте запуска второго интервала, пока работает первый.
-startButton.addEventListener("click", () => {});
+if (repeatButton) {
+  repeatButton.addEventListener("click", () => {
+    scheduleDelayedMessage();
+  });
+}
 
-// TODO 3. Остановите текущий интервал, но сохраните число секунд.
-pauseButton.addEventListener("click", () => {});
+startButton.addEventListener("click", () => {
+  if (intervalId !== null) {
+    return;
+  }
 
-// TODO 4. Отмените оба таймера и восстановите исходное состояние.
-resetButton.addEventListener("click", () => {});
+  if (seconds === 0) {
+    seconds = 10;
+    secondsText.textContent = String(seconds);
+  }
+
+  status.textContent = "Идёт обратный отсчёт...";
+
+  intervalId = setInterval(() => {
+    seconds -= 1;
+    secondsText.textContent = String(seconds);
+
+    if (seconds <= 0) {
+      clearInterval(intervalId);
+      intervalId = null;
+      status.textContent = "Отсчёт завершён!";
+    }
+  }, 1000);
+});
+
+pauseButton.addEventListener("click", () => {
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+    intervalId = null;
+    status.textContent = "Таймер на паузе.";
+  }
+});
+
+resetButton.addEventListener("click", () => {
+  if (timeoutId !== null) {
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  }
+
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+
+  seconds = 10;
+  secondsText.textContent = "10";
+  delayedText.textContent = "Сообщение ещё не запланировано";
+  status.textContent = "Таймер готов к запуску.";
+});
+
